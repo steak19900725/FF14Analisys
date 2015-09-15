@@ -1,0 +1,8 @@
+*.tgz
+node_modules/
+package/
+tests/
+tools/
+demo/
+lib/cloud.js
+*.sh

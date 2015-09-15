@@ -1,0 +1,24 @@
+{
+  "name": "FF14Analisys",
+  "version": "1.0.0",
+  "description": "FF14Analisys",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "node",
+    "LeanCloud",
+    "LeanEngine",
+    "express"
+  ],
+  "dependencies": {
+    "body-parser": "1.12.3",
+    "cookie-parser": "^1.3.5",
+    "ejs": "2.3.1",
+    "express": "4.12.3",
+    "leanengine": "^0.1.0",
+    "moment-timezone": "0.4.0",
+    "request": "*"
+  }
+}

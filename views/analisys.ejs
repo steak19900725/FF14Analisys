@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html ng-app="UserInfoModule">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>期货幻想14地精工具</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="panel panel-success">
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-md-3">
+                <h4>期货幻想14地精工具</h4>
+            </div>
+            <div class="col-md-offset-8 col-md-1">
+                <button id="updateLog" type="button" class="btn btn-default btn-sm">更新记录</button>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <center>数据来自游戏服务器，每天下午更新昨天的数据。有可能搜不到村服的数据(没有交易数据)。</center>
+        </div>
+
+        <div class="row">
+            <div class="col-md-offset-2 col-md-2">
+                <select class="form-control" name="area" id="area">
+                    <option value="0">--请选择大区--</option>
+                    <option value="1">电信一区</option>
+                    <option value="2">网通一区</option>
+                    <option value="3">电信二区</option>
+                    <option value="4">电信三区</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select class="form-control" id="srcgroup" name="srcgroup">
+                    <option value="0">--请选择服务器--</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select class="form-control" id="uikindkey" name="uikindkey">
+                    <option value="0" selected>全部分类</option>
+                    <option value="1">武器</option>
+                    <option value="2">工具</option>
+                    <option value="3">防具</option>
+                    <option value="4">饰品</option>
+                    <option value="5">药品食品</option>
+                    <option value="6">素材</option>
+                    <option value="7">其他</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <input class="form-control" id="itemNameText" type="text" placeholder="请输入精确的道具名称"/>
+            </div>
+
+            <div class="col-md-1">
+                <button id="searchBtn" type="button" class="btn btn-success">给我搜</button>
+            </div>
+
+            <img id="itemIcon" style="width:34px; height:34px" src="" hidden>
+            <!--<img id="itemIconHQ" style="width:34px; height:34px" src="" hidden>-->
+        </div>
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <div id="echart" style="margin-top:20px; height:500px;">
+                </div>
+            </div>
+        </div>
+        <center>作者为了省事部署在了LeanCloud云平台</center>
+        <center>不支持IE内核浏览器</center>
+    </div>
+</div>
+
+<script src="http://lib.sinaapp.com/js/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+<script src="js/jquery.lazyload.js"></script>
+<script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
+
+<script type="text/javascript">
+    //选择服务器
+    $(function () {
+        $("#area").change(function () {
+            $("#srcgroup option").remove();
+            map[parseInt($("#area").val())].forEach(function (server) {
+                $("#srcgroup").append("<option value=" + server.value + ">" + server.text + "</option>");
+            })
+        })
+
+        $("#area").val(CookieManager.getCookie('area') || 0);
+        $("#area").change();
+        $("#srcgroup").val(CookieManager.getCookie('groupId') || 0);
+    })
+
+    var map = [
+        [
+            {text: "--请选择服务器--", value: 0}
+        ],
+        [
+            {text: "--请选择服务器--", value: 0},
+            {text: "地平关", value: 1},
+            {text: "迷雾湿地", value: 2},
+            {text: "拉诺西亚", value: 3},
+            {text: "紫水栈桥", value: 4},
+            {text: "幻影群岛", value: 5},
+            {text: "摩杜纳", value: 6},
+            {text: "魔兽领域", value: 7},
+            {text: "封魔洞", value: 8},
+            {text: "太阳海岸", value: 9},
+            {text: "小麦酒港", value: 10},
+            {text: "银泪湖", value: 11},
+            {text: "盛夏滩", value: 12},
+            {text: "葡萄酒港", value: 13},
+            {text: "黑衣森林", value: 14},
+            {text: "青磷泉", value: 15},
+            {text: "金锤台地", value: 16},
+            {text: "红茶川", value: 17},
+            {text: "伊修加德", value: 18},
+            {text: "雪松原", value: 19},
+            {text: "妖精领", value: 20},
+        ],
+        [
+            {text: "--请选择服务器--", value: 0},
+            {text: "萌芽池", value: 1},
+            {text: "执掌峡谷", value: 2},
+            {text: "月牙湾", value: 5},
+            {text: "黄金谷", value: 9},
+            {text: "天狼星灯塔", value: 11},
+            {text: "月影岛", value: 14},
+            {text: "水晶塔", value: 15},
+        ],
+        [
+            {text: "--请选择服务器--", value: 0},
+            {text: "神意之地", value: 2},
+            {text: "狮鹫大桥", value: 3},
+            {text: "永恒川", value: 4},
+            {text: "和风流地", value: 6},
+            {text: "剑斗领域", value: 9},
+            {text: "黑尘驿站", value: 10},
+            {text: "领航明灯", value: 12},
+            {text: "翡翠湖", value: 14},
+            {text: "雄心广场", value: 15},
+            {text: "库尔札斯", value: 16},
+            {text: "蓝雾涌泉", value: 20},
+        ],
+        [
+            {text: "--请选择服务器--", value: 0},
+            {text: "神灵圣域", value: 1},
+            {text: "静语庄园", value: 7},
+            {text: "珊瑚塔", value: 9},
+        ]
+    ]
+
+</script>
+
+<script type="text/javascript">
+    //异步加载图片
+    $("#itemIcon").lazyload();
+//    $("#itemIconHQ").lazyload();
+
+    //构建表格数据
+    function buildOption(dateArr, itemBottomPriceArr, itemAveragePrizeArr, itemPeakPriceArr) {
+        var option = {
+            title: {
+                text: '物价变化'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['最低价格', '平均价格', '最高价格']
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: {show: false},
+                    dataView: {show: true, readOnly: false},
+                    magicType: {show: false, type: ['line']},
+                    restore: {show: false},
+                    saveAsImage: {show: false}
+                }
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: dateArr
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value} G'
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: '最高价格',
+                    type: 'line',
+                    data: itemPeakPriceArr,
+                    markPoint: {
+                        data: [
+                            {type: 'max', name: '最大值'},
+                            {type: 'min', name: '最小值'}
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            {type: 'average', name: '平均值'}
+                        ]
+                    }
+                },
+                {
+                    name: '平均价格',
+                    type: 'line',
+                    data: itemAveragePrizeArr,
+                    markPoint: {
+                        data: [
+                            {type: 'max', name: '最大值'},
+                            {type: 'min', name: '最小值'}
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            {type: 'average', name: '平均值'}
+                        ]
+                    }
+                },
+                {
+                    name: '最低价格',
+                    type: 'line',
+                    data: itemBottomPriceArr,
+                    markPoint: {
+                        data: [
+                            {type: 'max', name: '最大值'},
+                            {type: 'min', name: '最小值'}
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            {type: 'average', name: '平均值'}
+                        ]
+                    }
+                },
+            ]
+        };
+
+        return option;
+    }
+
+    //显示表格
+    var myChart;
+    require.config({paths: {echarts: 'http://echarts.baidu.com/build/dist'}});
+    require(['echarts', 'echarts/chart/line'], function (ec) {
+                var dateArr = [];
+                var itemBottomPriceArr = [];
+                var itemAveragePrizeArr = [];
+                var itemPeakPriceArr = [];
+                myChart = ec.init(document.getElementById('echart'));
+                myChart.setOption(buildOption(dateArr, itemBottomPriceArr, itemAveragePrizeArr, itemPeakPriceArr));
+            }
+    );
+
+    //查询
+    $("#searchBtn").click(function () {
+        var area = $("#area").val();
+        var groupId = $("#srcgroup").val();
+
+        CookieManager.setCookie('area', area);
+        CookieManager.setCookie('groupId', groupId);
+
+        var itemNameText = $("#itemNameText").val().trim();
+        var uikindkey = $("#uikindkey").val();
+
+        $.ajax({
+            url: "api/searchItemTrade?keyword=" + itemNameText + "&areaId=" + area + "&groupId=" + groupId + "&uikindkey=" + uikindkey,
+            async: true,
+            success: function (obj) {
+                var data = obj.uiData;
+
+                dateArr = data.dates;
+                itemBottomPriceArr = data.itemBottomPrices;
+                itemAveragePrizeArr = data.itemAveragePrizes;
+                itemPeakPriceArr = data.itemPeakPrices;
+
+                myChart.setOption(buildOption(dateArr, itemBottomPriceArr, itemAveragePrizeArr, itemPeakPriceArr));
+
+                if (data.iconUrl) {
+                    $("#itemIcon").show();
+                    $("#itemIcon").attr('src', data.iconUrl);
+                }
+                else {
+                    $("#itemIcon").hide();
+                }
+
+//                if (data.hqIconUrl) {
+//                    $("#itemIconHQ").show();
+//                    $("#itemIconHQ").attr('src', data.hqIconUrl);
+//                }
+//                else {
+//                    $("#itemIconHQ").hide();
+//                }
+            }
+        });
+    })
+
+    //更新记录
+    $("#updateLog").click(function () {
+        alert("2015-07-31 第一版上线，仅支持紫水服务器查询\n" +
+                "2015-08-01 增加对全服务器的支持\n" +
+                "2015-08-02 增加分类选择，解决无法正确搜索山羊革这类素材的问题\n" +
+                "2015-08-09 精确匹配了道具名称；增加了道具图片显示\n" +
+                "2015-09-15 开源");
+    })
+</script>
+<script src="/js/cookieManager.js"></script>
+</body>
+</html>
